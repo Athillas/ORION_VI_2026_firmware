@@ -1,0 +1,1 @@
+* Make MQTT communication JSON document's keys human-readable in Network::sendErrorMessage and in NetworkHandlers::ControlCmdHandler

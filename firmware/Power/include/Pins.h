@@ -1,7 +1,9 @@
+// Pins.h
+#ifndef PINS_H
+#define PINS_H
+
 #include <Arduino.h>
 #include <cstdint>
-
-#pragma once
 
 namespace Pins
 {
@@ -54,6 +56,9 @@ namespace Pins
         pinMode(BAT_3_ADC_PIN, INPUT);
         pinMode(BAT_4_ADC_PIN, INPUT);
 
+        // WIZNET
+        pinMode(WIZ_RST_PIN, OUTPUT);
+
         // Fan
         pinMode(FAN1_ON_PIN, OUTPUT);
         digitalWrite(FAN1_ON_PIN, LOW);
@@ -74,3 +79,5 @@ namespace Pins
         digitalWrite(S_W_L_PIN, LOW);
     }
 }
+
+#endif
