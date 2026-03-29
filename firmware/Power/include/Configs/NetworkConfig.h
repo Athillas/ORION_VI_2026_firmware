@@ -10,7 +10,7 @@ namespace NetworkConfig
     constexpr const char* MQTT_SERVER_IP          = "192.168.1.1"; 
     constexpr const char* MQTT_SERVER_ID          = "ESP32_ODrive";
     inline byte MAC[6]; // non-const because of Ethernet.begin type limitations. Defined in Network.cpp.
-    inline byte IP[4];           // same as ^.
+    inline byte IP[4];  // same as ^.
 
     // --- MQTT configuration ---
     constexpr uint16_t MQTT_PORT                  = 1883;
@@ -23,7 +23,7 @@ namespace NetworkConfig
     // --- Network Safety ---
     constexpr uint16_t MQTT_SAFETY_TIMEOUT        = 1000;
     constexpr uint16_t RECONNECTION_TIMEOUT       = 5000;
-    constexpr uint16_t MAX_JSON_PAYLOAD           = 512;
+    constexpr uint16_t MAX_JSON_PAYLOAD           = 256;
 }
 
 #endif

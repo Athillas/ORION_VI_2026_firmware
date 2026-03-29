@@ -1,6 +1,5 @@
 // Network.cpp
 #include <Arduino.h>
-#include <SPI.h>
 #include <ArduinoJson.h>
 #include <cstring>
 
@@ -9,7 +8,7 @@
 #include "NetworkHandlers.h"
 
 #include "Configs/NetworkConfig.h"
-#include "States/HardwareState.h"
+#include "States/HardwareFeedbackState.h"
 #include "States/HardwareCommandState.h"
 #include "States/NetworkState.h"
 
@@ -22,76 +21,6 @@ inline static byte NetworkConfig::IP[4]    = { 192, 168, 1, 56 };               
 */
 static struct NetworkState *ns_ = nullptr;
 static struct HardwareCommandState *hcs_ = nullptr;
-
-static void callback(const char* topic, const byte* payload, uint16_t length)
-{
-  if(ns_ == nullptr)
-  {
-    Serial.print("[MQTT] Local copy of NetworkState is not initialized in Network.cpp file! Call the initNetwork() before using other methods. Stopping.");
-    return;
-  }
-  
-  if(hcs_ == nullptr)
-  {
-    Serial.print("[MQTT] Local copy of HardwareCommandState is not initialized in Network.cpp file! Call the initNetwork() before using other methods. Stopping.");
-    return;
-  }
-  
-  if (length > NetworkConfig::MAX_JSON_PAYLOAD)
-  {
-    Serial.println("[MQTT] ERROR: Payload is too big!");
-    return; 
-  }
-  
-  if(strcmp(topic, NetworkConfig::TOPIC_POWER_CONTROL_CMD) != 0) return;
-  
-  char buffer[NetworkConfig::MAX_JSON_PAYLOAD + 1];
-  memcpy(buffer, payload, length);
-  buffer[length] = '\0';
-
-  StaticJsonDocument<NetworkConfig::MAX_JSON_PAYLOAD> doc;
-  DeserializationError error = deserializeJson(doc, buffer);
-
-  if(error)
-  {
-    Serial.print("[MQTT] Failed to deserialize the JSON!"); Serial.println(error.c_str());
-    return;
-  }
-  
-  ns_->lastMqttCmdTime = millis();
-
-  NetworkHandlers::controlCmdHandler(doc, *hcs_);
-
-  Serial.print("[MQTT] MQTT command: ");
-  Serial.println(buffer);
-}
-
-static void reconnect()
-{
-  if(ns_ == nullptr)
-  {
-    Serial.print("[MQTT] Network is not initialized! Call the initNetwork() before using other methods. Quitting.");
-    return;
-  }
-
-  if(ns_->client.connected()) return;
-
-  static uint32_t lastRec = 0;
-
-  if(millis() - lastRec < NetworkConfig::RECONNECTION_TIMEOUT) return;
-
-  lastRec = millis();
-  Serial.print("[MQTT] Connecting to "); Serial.print(NetworkConfig::MQTT_SERVER_IP); Serial.println("...");
-
-  if(!ns_->client.connect(NetworkConfig::MQTT_SERVER_ID))
-  {
-    Serial.print("[MQTT] Failed, rc="); Serial.println(ns_->client.state());
-    return;
-  }
-
-  Serial.println("[MQTT] Connected!");
-  ns_->client.subscribe(NetworkConfig::TOPIC_POWER_CONTROL_CMD);
-}
 
 void Network::initNetwork(struct NetworkState &ns, struct HardwareCommandState &hcs)
 {
@@ -119,6 +48,69 @@ void Network::initNetwork(struct NetworkState &ns, struct HardwareCommandState &
   ns.client.setBufferSize(512);
 }
 
+static void callback(const char* topic, const byte* payload, uint16_t length)
+{
+  if(ns_ == nullptr)
+  {
+    Serial.print("[MQTT] Local copy of NetworkState is not initialized in Network.cpp file! Call the initNetwork() before using other methods. Stopping.");
+    return;
+  }
+  
+  if(hcs_ == nullptr)
+  {
+    Serial.print("[MQTT] Local copy of HardwareCommandState is not initialized in Network.cpp file! Call the initNetwork() before using other methods. Stopping.");
+    return;
+  }
+  
+  if (length > NetworkConfig::MAX_JSON_PAYLOAD)
+  {
+    Serial.println("[MQTT] ERROR: Payload is too big!");
+    return; 
+  }
+  
+  if(strcmp(topic, NetworkConfig::TOPIC_POWER_CONTROL_CMD) != 0) return;
+
+  StaticJsonDocument<NetworkConfig::MAX_JSON_PAYLOAD> doc;
+  DeserializationError error = deserializeJson(doc, payload, length);
+
+  if(error)
+  {
+    Serial.print("[MQTT] Failed to deserialize the JSON!"); Serial.println(error.c_str());
+    return;
+  }
+  
+  ns_->lastMqttCmdTime = millis();
+
+  NetworkHandlers::controlCmdHandler(doc, *hcs_);
+}
+
+inline static void reconnect()
+{
+  if(ns_ == nullptr)
+  {
+    Serial.print("[MQTT] Network is not initialized! Call the initNetwork() before using other methods. Quitting.");
+    return;
+  }
+
+  if(ns_->client.connected()) return;
+
+  static uint32_t lastRec = 0;
+
+  if(millis() - lastRec < NetworkConfig::RECONNECTION_TIMEOUT) return;
+
+  lastRec = millis();
+  Serial.print("[MQTT] Connecting to "); Serial.print(NetworkConfig::MQTT_SERVER_IP); Serial.println("...");
+
+  if(!ns_->client.connect(NetworkConfig::MQTT_SERVER_ID))
+  {
+    Serial.print("[MQTT] Failed, rc="); Serial.println(ns_->client.state());
+    return;
+  }
+
+  Serial.println("[MQTT] Connected!");
+  ns_->client.subscribe(NetworkConfig::TOPIC_POWER_CONTROL_CMD);
+}
+
 void Network::handleNetwork()
 {
   if(ns_ == nullptr)
@@ -137,7 +129,7 @@ void Network::handleNetwork()
   ns_->client.loop();
 }
 
-void Network::sendFeedbackMessage(const HardwareState &hs)
+void Network::sendFeedbackMessage(const HardwareFeedbackState &hs)
 {
   if(ns_ == nullptr)
   {
@@ -151,11 +143,13 @@ void Network::sendFeedbackMessage(const HardwareState &hs)
     return;
   }
 
-  ns_->feedback_doc.clear();
+  StaticJsonDocument<NetworkConfig::MAX_JSON_PAYLOAD> feedback_doc;
 
-  ns_->feedback_doc["eventType"] = "Power_control_enc";
+  feedback_doc.clear();
 
-  auto payload = ns_->feedback_doc.createNestedObject("payload");
+  feedback_doc["eventType"] = "Power_control_enc";
+
+  auto payload = feedback_doc.createNestedObject("payload");
 
   payload["TEMP"]      = hs.TEMP;
   payload["BAT_1_ADC"] = hs.BAT_1_ADC;
@@ -169,9 +163,7 @@ void Network::sendFeedbackMessage(const HardwareState &hs)
   payload["ADC_SCI"]   = hs.ADC_SCI;
   payload["ADC_INNE"]  = hs.ADC_INNE;
 
-  serializeJson(ns_->feedback_doc, ns_->feedback_buf, sizeof(ns_->feedback_buf));
-
-  if(!ns_->client.publish(NetworkConfig::TOPIC_POWER_CONTROL_ENC, ns_->feedback_buf))
+  if(!serializeJson(feedback_doc, ns_->client))
   {
     Serial.println("[MQTT] Publish failure!");
   }
@@ -185,17 +177,17 @@ void Network::sendErrorMessage(const uint32_t errorDesc)
     return;
   }
 
-  ns_->feedback_doc.clear();
+  StaticJsonDocument<NetworkConfig::MAX_JSON_PAYLOAD> feedback_doc;
 
-  ns_->feedback_doc["eventType"] = "Power_control_enc";
+  feedback_doc.clear();
+
+  feedback_doc["eventType"] = "Power_control_enc";
 
   char errStr[12];
   snprintf(errStr, sizeof(errStr), "0x%X", errorDesc);
-  ns_->feedback_doc["error"] = errStr;
+  feedback_doc["error"] = errStr;
 
-  serializeJson(ns_->feedback_doc, ns_->feedback_buf, sizeof(ns_->feedback_buf));
-
-  if(!ns_->client.publish(NetworkConfig::TOPIC_POWER_CONTROL_ENC, ns_->feedback_buf))
+  if(!serializeJson(feedback_doc, ns_->client))
   {
     Serial.println("[MQTT] Error publish failure!");
   }

@@ -10,7 +10,7 @@ namespace Network
 {
     void initNetwork(struct NetworkState &ns, struct HardwareCommandState &hcs);
     void handleNetwork(); // Wywoływane w loop()
-    void sendFeedbackMessage(const HardwareState &hs);
+    void sendFeedbackMessage(const HardwareFeedbackState &hs);
     void sendErrorMessage(uint32_t errorDesc);
 }
 
