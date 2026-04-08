@@ -5,8 +5,8 @@
 #include "Network.h"
 #include "Hardware.h"
 
-#include "Configs/NetworkConfig.h"
 #include "Configs/HardwareConfig.h"
+#include "Configs/NetworkConfig.h"
 
 #include "States/HardwareState.h"
 #include "States/HardwareCommandState.h"
@@ -16,20 +16,18 @@
 // --- States ---
 // (Initialized via constructors)
 
+struct NetworkState ns {};
+struct HardwareState hs {};
 struct HardwareFeedbackState hfs {};
-
 struct HardwareCommandState hcs {};
 
-struct NetworkState ns {};
-
-struct HardwareState hs {};
-
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(HardwareConfig::SERIAL_BAUD_RATE);
     delay(1000);
     Serial.println("\n\n>>> POWER CONTROL MODULE SYSTEM START <<<");
 
     // --- System initialization ---
+    Pins::init_pins();
     Network::initNetwork(ns, hcs);
     Hardware::initHardware();
 
@@ -50,7 +48,9 @@ void loop() {
     // TODO.
 
     static uint32_t lastMqttFeedback = 0;
-    if(now - lastMqttFeedback < NetworkConfig::MQTT_FEEDBACK_DELAY) return;
-
-    Network::sendFeedbackMessage(hfs);
+    if(now - lastMqttFeedback >= NetworkConfig::MQTT_FEEDBACK_DELAY)
+    {
+        Network::sendFeedbackMessage(hfs);
+        lastMqttFeedback = now;
+    }
 }

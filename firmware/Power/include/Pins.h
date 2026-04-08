@@ -5,6 +5,8 @@
 #include <Arduino.h>
 #include <cstdint>
 
+
+// !!!GPIO 0, 2, 12, and 15 potentially unsafe!!!
 namespace Pins
 {
     // 21V -> 2.69V -> ADC

@@ -4,21 +4,23 @@
 
 // included from ../shared_libs/
 // ---
-#include <ACS712XX.h>
+#include <ACS712.h>
 #include <Adafruit_NeoPixel.h>
 // ---
-
 #include <DS18B20.h>
+
+#include "Pins.h"
+#include "Configs/HardwareConfig.h"
 
 struct HardwareState
 {
     // Amper-meters
-    ACS712XX WL;
-    ACS712XX WR;
-    ACS712XX RAM;
-    ACS712XX ELEK;
-    ACS712XX SCI;
-    ACS712XX INNE;
+    ACS712 WL;
+    ACS712 WR;
+    ACS712 RAM;
+    ACS712 ELEK;
+    ACS712 SCI;
+    ACS712 INNE;
 
     // Thermometer
     DS18B20 T1;
@@ -27,12 +29,12 @@ struct HardwareState
     Adafruit_NeoPixel NeoPixelConnector;
 
     HardwareState() : 
-        WL(ACS712_30A, Pins::ADC_WL_PIN, HardwareConfig::ADC_REF, HardwareConfig::ADC_FS),
-        WR(ACS712_30A, Pins::ADC_WR_PIN, HardwareConfig::ADC_REF, HardwareConfig::ADC_FS),
-        RAM(ACS712_30A, Pins::ADC_RAM_PIN, HardwareConfig::ADC_REF, HardwareConfig::ADC_FS),
-        ELEK(ACS712_30A, Pins::ADC_ELEK_PIN, HardwareConfig::ADC_REF, HardwareConfig::ADC_FS),
-        SCI(ACS712_30A, Pins::ADC_SCI_PIN, HardwareConfig::ADC_REF, HardwareConfig::ADC_FS),
-        INNE(ACS712_30A, Pins::ADC_INNE_PIN, HardwareConfig::ADC_REF, HardwareConfig::ADC_FS),
+        WL(Pins::ADC_WL_PIN, HardwareConfig::AMPM_VOLTS, HardwareConfig::AMPM_MAX_ADC, HardwareConfig::AMPM_MV_PER_AMPERE),
+        WR(Pins::ADC_WR_PIN, HardwareConfig::AMPM_VOLTS, HardwareConfig::AMPM_MAX_ADC, HardwareConfig::AMPM_MV_PER_AMPERE),
+        RAM(Pins::ADC_RAM_PIN, HardwareConfig::AMPM_VOLTS, HardwareConfig::AMPM_MAX_ADC, HardwareConfig::AMPM_MV_PER_AMPERE),
+        ELEK(Pins::ADC_ELEK_PIN, HardwareConfig::AMPM_VOLTS, HardwareConfig::AMPM_MAX_ADC, HardwareConfig::AMPM_MV_PER_AMPERE),
+        SCI(Pins::ADC_SCI_PIN, HardwareConfig::AMPM_VOLTS, HardwareConfig::AMPM_MAX_ADC, HardwareConfig::AMPM_MV_PER_AMPERE),
+        INNE(Pins::ADC_INNE_PIN, HardwareConfig::AMPM_VOLTS, HardwareConfig::AMPM_MAX_ADC, HardwareConfig::AMPM_MV_PER_AMPERE),
         T1(Pins::TEMP_PIN)
     {
         NeoPixelConnector.setPin(Pins::NEOPIXEL_PIN);
