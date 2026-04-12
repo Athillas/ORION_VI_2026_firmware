@@ -2,11 +2,9 @@
 #ifndef HARDWARE_STATE_H
 #define HARDWARE_STATE_H
 
-// included from ../shared_libs/
-// ---
+
 #include <ACS712.h>
 #include <Adafruit_NeoPixel.h>
-// ---
 #include <DS18B20.h>
 
 #include "Pins.h"

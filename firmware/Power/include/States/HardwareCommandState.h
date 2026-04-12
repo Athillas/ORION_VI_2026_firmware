@@ -2,6 +2,8 @@
 #ifndef HARDWARE_COMMAND_STATE_H
 #define HARDWARE_COMMAND_STATE_H
 
+#include <cstdint>
+
 struct HardwareCommandState
 {
     uint8_t S_W_L       : 1;

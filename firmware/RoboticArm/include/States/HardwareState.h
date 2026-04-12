@@ -5,7 +5,7 @@
 #include "Pins.h"
 #include "Configs/HardwareConfig.h"
 
-// included from ../shared_libs/
+
 // ---
 #include <ACS712.h>
 #include <Adafruit_NeoPixel.h>
