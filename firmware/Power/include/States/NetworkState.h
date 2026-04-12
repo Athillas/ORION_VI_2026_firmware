@@ -20,8 +20,8 @@ struct NetworkState
 
     NetworkState() : client(ethClient) {
         ip = IPAddress(
-            NetworkConfig::IP_[0], NetworkConfig::IP_[1], 
-            NetworkConfig::IP_[2], NetworkConfig::IP_[3]
+            NetworkConfig::IP[0], NetworkConfig::IP[1], 
+            NetworkConfig::IP[2], NetworkConfig::IP[3]
         );
     }
 };

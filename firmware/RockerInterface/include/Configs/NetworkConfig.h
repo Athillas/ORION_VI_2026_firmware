@@ -7,8 +7,8 @@
 namespace NetworkConfig
 {
     // --- Network adresses ---
-    constexpr const char* MQTT_SERVER_IP    = "192.168.1.1"; 
-    constexpr const char* MQTT_SERVER_ID    = ""; // !!!requires clarification!!!
+    constexpr const char* const MQTT_SERVER_IP    = "192.168.1.1"; 
+    constexpr const char* const MQTT_SERVER_ID    = ""; // !!!requires clarification!!!
     constexpr uint8_t MAC[6]   = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xE7 };
     constexpr uint8_t IP[4]    = { 192, 168, 1, 57 };
 
@@ -18,8 +18,8 @@ namespace NetworkConfig
     
     // --- MQTT Topics ---
     // Only two needed by design (_enc topic for feedback, _cmd topic for command), so these names are totally ok.
-    constexpr char* const TOPIC_ENC         = "Rocker_Interface_enc";
-    constexpr char* const TOPIC_CMD         = "Rocker_Interface_cmd";
+    constexpr const char* const TOPIC_ENC         = "Rocker_Interface_enc";
+    constexpr const char* const TOPIC_CMD         = "Rocker_Interface_cmd";
 
     // --- Network Safety ---
     constexpr uint16_t MQTT_SAFETY_TIMEOUT  = 1000;

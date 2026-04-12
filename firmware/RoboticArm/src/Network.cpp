@@ -12,45 +12,23 @@
 #include "States/HardwareCommandState.h"
 #include "States/NetworkState.h"
 
-inline static uint8_t MAC_[6];
-inline static uint8_t IP_[4];
-
-/*
-  Local pointers to NetworkState and HardwareCommandState structs. Initialized in initNetwork() method.
-  Needed because callback function cannot accept any additional arguments apart from the ones dictated by PubSubClient. 
-*/
-static struct NetworkState *ns_ = nullptr;
-static struct HardwareCommandState *hcs_ = nullptr;
-
-void Network::initNetwork(struct NetworkState &ns, struct HardwareCommandState &hcs)
+namespace
 {
-  ns_ = &ns;
-  hcs_ = &hcs;
-	memcpy(MAC_, NetworkConfig::MAC, 6);
-	memcpy(IP_, NetworkConfig::IP, 4);
-  
-  Serial.println("[ETHERNET] Init Ethernet...");
-  digitalWrite(Pins::WIZ_RST_PIN, LOW); delay(100);
-  digitalWrite(Pins::WIZ_RST_PIN, HIGH); delay(100);
-  
-  Ethernet.init(Pins::WIZ_SCN_PIN);
-  Ethernet.begin(MAC_, IP_);
-  
-  if (Ethernet.hardwareStatus() == EthernetNoHardware)
-  {
-    Serial.println("[ETHERNET] ERROR: W5500 not found!");
-  }
-  else
-  {
-    Serial.print("[ETHERNET] Ethernet IP: "); Serial.println(Ethernet.localIP());
-  }
-  
-  ns.client.setServer(NetworkConfig::MQTT_SERVER_IP, NetworkConfig::MQTT_PORT);
-  ns.client.setCallback(callback);
-  ns.client.setBufferSize(NetworkConfig::MAX_JSON_PAYLOAD);
+	// Non-const local copies, needed because of Ethernet's begin limitations.
+	static uint8_t MAC_[6]; 
+	static uint8_t IP_[4];
+	
+	/*
+	  Local pointers to NetworkState and HardwareCommandState structs.
+
+	  Initialized in initNetwork() method.
+	  Needed because callback function cannot accept any additional arguments apart from the ones dictated by PubSubClient. 
+	*/
+	static struct NetworkState *ns_ = nullptr;
+	static struct HardwareCommandState *hcs_ = nullptr;
 }
 
-static void callback(const char* topic, const byte* payload, uint16_t length)
+void callback(const char* topic, const byte* payload, uint16_t length)
 {
   if(ns_ == nullptr)
   {
@@ -86,7 +64,35 @@ static void callback(const char* topic, const byte* payload, uint16_t length)
   NetworkHandlers::controlCmdHandler(doc, *ns_, *hcs_);
 }
 
-inline static void reconnect()
+void Network::initNetwork(struct NetworkState &ns, struct HardwareCommandState &hcs)
+{
+  ns_ = &ns;
+  hcs_ = &hcs;
+	memcpy(MAC_, NetworkConfig::MAC, 6);
+	memcpy(IP_, NetworkConfig::IP, 4);
+  
+  Serial.println("[ETHERNET] Init Ethernet...");
+  digitalWrite(Pins::WIZ_RST_PIN, LOW); delay(100);
+  digitalWrite(Pins::WIZ_RST_PIN, HIGH); delay(100);
+  
+  Ethernet.init(Pins::WIZ_SCN_PIN);
+  Ethernet.begin(MAC_, IP_);
+  
+  if (Ethernet.hardwareStatus() == EthernetNoHardware)
+  {
+    Serial.println("[ETHERNET] ERROR: W5500 not found!");
+  }
+  else
+  {
+    Serial.print("[ETHERNET] Ethernet IP: "); Serial.println(Ethernet.localIP());
+  }
+  
+  ns.client.setServer(NetworkConfig::MQTT_SERVER_IP, NetworkConfig::MQTT_PORT);
+  ns.client.setCallback(callback);
+  ns.client.setBufferSize(NetworkConfig::MAX_JSON_PAYLOAD);
+}
+
+static void reconnect()
 {
   if(ns_ == nullptr)
   {

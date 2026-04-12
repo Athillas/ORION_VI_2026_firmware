@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include "States/NetworkState.h"
 #include "States/HardwareCommandState.h"
+#include "States/HardwareFeedbackState.h"
 
 namespace Network
 {

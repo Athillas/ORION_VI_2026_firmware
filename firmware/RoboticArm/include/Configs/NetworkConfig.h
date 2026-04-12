@@ -7,8 +7,8 @@
 namespace NetworkConfig
 {
     // --- Network adresses ---
-    constexpr const char* MQTT_SERVER_IP    = "192.168.1.1"; 
-    constexpr const char* MQTT_SERVER_ID    = ""; // !!!requires clarification!!!
+    constexpr const char* const MQTT_SERVER_IP    = "192.168.1.1"; 
+    constexpr const char* const MQTT_SERVER_ID    = ""; // !!!requires clarification!!!
     constexpr uint8_t MAC[6]   = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xE3 }; // non-const because of Ethernet.begin type limitations
     constexpr uint8_t IP[4]    = { 192, 168, 1, 53 };
     // MAC_ and IP_ adresses, despite being quite static, are defined in Network.cpp as inline static variables.
@@ -20,8 +20,8 @@ namespace NetworkConfig
     
     // --- MQTT Topics ---
     // Only two needed by design (_enc topic for feedback, _cmd topic for command), so these names are totally ok.
-    constexpr char* const TOPIC_ENC         = "Robotic_arm_enc";
-    constexpr char* const TOPIC_CMD         = "Robotic_arm_cmd";
+    constexpr const char* const TOPIC_ENC         = "Robotic_arm_enc";
+    constexpr const char* const TOPIC_CMD         = "Robotic_arm_cmd";
 
     // --- Network Safety ---
     constexpr uint16_t MQTT_SAFETY_TIMEOUT  = 1000;
