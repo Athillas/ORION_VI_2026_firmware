@@ -30,7 +30,7 @@ struct HardwareState
     float TEMP_B;
 
     // Servo feedback (!!!requires clarification!!! float or int?)
-    float SERVO_VFB_A;
+    float SERVO_VFB_A; //ASME05
     float SERVO_VFB_B;
 
     // Servo control (!!!requires clarification!!! how is servo controlled?)
@@ -38,7 +38,7 @@ struct HardwareState
     float SERVO_B_CTRL;
 
     // !!!requires clarification!!!
-    float VSENSE;
+    uint16_t VSENSE;
 
     // Fan control
     uint8_t FAN_A_STATE : 1;

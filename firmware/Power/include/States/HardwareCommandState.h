@@ -13,7 +13,7 @@ struct HardwareCommandState
     uint8_t S_ELEK      : 1;
     uint8_t S_RAM       : 1;
     uint8_t FAN1_ON     : 1;
-    uint8_t NEOPIXEL    : 1;
+    uint8_t NEOPIXEL    : 1; // OneWire
 
     HardwareCommandState() :
     S_W_L(0), S_W_R(0), S_INNE(0), S_SCI(0),

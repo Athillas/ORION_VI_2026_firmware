@@ -15,8 +15,8 @@
 namespace
 {
 	// Non-const local copies, needed because of Ethernet's begin limitations.
-	static uint8_t MAC_[6]; 
-	static uint8_t IP_[4];
+	uint8_t MAC_[6]; 
+	uint8_t IP_[4];
 	
 	/*
 	  Local pointers to NetworkState and HardwareCommandState structs.
