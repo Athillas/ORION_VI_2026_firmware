@@ -4,10 +4,11 @@
 
 #include <PubSubClient.h>
 #include "States/NetworkState.h"
+#include "Configs/NetworkConfig.h"
 
 namespace Feedback
 {
-    void init(struct NetworkState &ns, SemaphoreHandle_t &nss, SemaphoreHandle_t &ss);
+    void init(char (&feedback_message)[NetworkConfig::MAX_JSON_PAYLOAD], SemaphoreHandle_t &ss, SemaphoreHandle_t &fms);
     constexpr uint32_t FEEDBACK_TASK_TIMEOUT = 100;
 }
 

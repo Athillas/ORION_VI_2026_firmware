@@ -11,6 +11,7 @@ namespace
     {
         VacuumState *vs;
         SemaphoreHandle_t *vss;
+        SemaphoreHandle_t *ss;
     };
     
     struct TaskParams vtp;
@@ -25,6 +26,7 @@ void Vacuum::init(VacuumState &vs, SemaphoreHandle_t &vss, SemaphoreHandle_t &ss
 
     vtp.vs = &vs;
     vtp.vss = &vss;
+    vtp.ss = &ss;
     
     if(xTaskCreate(
         vacuum_task,

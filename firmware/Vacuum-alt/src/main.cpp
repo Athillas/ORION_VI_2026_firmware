@@ -10,53 +10,52 @@
 #include "Feedback.h"
 
 #include "Configs/HardwareConfig.h"
+#include "Configs/NetworkConfig.h"
 
 #include "States/VacuumState.h"
 #include "States/NetworkState.h"
 
 // Shared state
-SemaphoreHandle_t vss, nss, ss;
-VacuumState vs = VacuumState::IDLE;
-struct NetworkState ns{};
+SemaphoreHandle_t vss, ss, fms; // Vaacum State, Serial and Feedback Message Semaphores
 
-void setup() {
+VacuumState vs = VacuumState::IDLE;
+
+char feedback_message[NetworkConfig::MAX_JSON_PAYLOAD] {0};
+
+void setup()
+{
     Serial.begin(HardwareConfig::SERIAL_BAUD_RATE);
 
     vTaskDelay(pdTICKS_TO_MS(1000)); // wait for the serial to get configured to not miss any messages.
-    
+
     vss = xSemaphoreCreateMutex();
     ss = xSemaphoreCreateMutex();
 
-    if(xSemaphoreTake(ss, portMAX_DELAY))
-    {
-        Serial.println("--- VACUUM SYSTEM BOOT ---\n\n");
-        Serial.println("[PINS] Initializing...");
-        xSemaphoreGive(ss);
-    }
-    Pins::init();
-    if(xSemaphoreTake(ss, portMAX_DELAY))
-    {
-        Serial.println("[PINS] Initialization finished.\n");
-        xSemaphoreGive(ss);
-    }
-    vTaskDelay(pdTICKS_TO_MS(10));
+    Serial.println("--- VACUUM SYSTEM BOOT ---\n\n");
 
+    Serial.println("[PINS] Initializing...");
+    Pins::init();
+    Serial.println("[PINS] Initialization finished.\n");
+    vTaskDelay(pdTICKS_TO_MS(10));
 
     Vacuum::init(vs, vss, ss);
     vTaskDelay(pdTICKS_TO_MS(10));
 
-    Network::init(ns, nss, ss);
+    Network::init(feedback_message, ss, fms);
     vTaskDelay(pdTICKS_TO_MS(10));
 
-    Feedback::init(ns, nss, ss);
+    Feedback::init(feedback_message, ss, fms);
 
     if(xSemaphoreTake(ss, portMAX_DELAY))
     {
         Serial.println("\n\n--- VACUUM SYSTEM BOOT FINISHED ---\n\n");
         xSemaphoreGive(ss);
     }
+    vTaskDelete(NULL);
 }
 
-void loop() {
+void loop()
+{
 
+    Serial.println("Shouldn't get there...");
 }

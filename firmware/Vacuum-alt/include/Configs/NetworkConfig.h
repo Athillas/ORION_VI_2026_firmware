@@ -8,7 +8,7 @@ namespace NetworkConfig
 {
     // --- Network adresses ---
     constexpr const char* const MQTT_SERVER_IP      = "192.168.1.1"; 
-    constexpr const char* const MQTT_SERVER_ID      = "Vacuum"; // !!!requires clarification!!!
+    constexpr const char* const MQTT_ID      = "Vacuum"; // !!!requires clarification!!!
     constexpr uint8_t MAC[6]                        = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xE4 };
     constexpr uint8_t IP[4]                         = { 192, 168, 1, 54 };
 
@@ -26,6 +26,12 @@ namespace NetworkConfig
     constexpr uint16_t MQTT_SAFETY_TIMEOUT          = 1000;
     constexpr uint16_t RECONNECTION_TIMEOUT         = 5000;
     constexpr uint16_t MAX_JSON_PAYLOAD             = 256;
+
+    struct MqttFeedbackMessage
+    {
+        char topic[64];
+        char payload[MAX_JSON_PAYLOAD];
+    };
 }
 
 #endif
