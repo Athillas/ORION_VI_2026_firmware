@@ -3,11 +3,11 @@
 #define VACUUM_H
 
 #include <cstdint>
-#include "States/VacuumState.h"
+#include "States/AppState.h"
 
 namespace Vacuum
 {
-    void init(VacuumState &vs, SemaphoreHandle_t &vss, SemaphoreHandle_t &ss);
+    void init(struct AppState &app_state, SemaphoreHandle_t &app_state_mutex, SemaphoreHandle_t &serial_mutex);
     constexpr uint32_t VACUUM_TASK_TIMEOUT = 100;
 }
 

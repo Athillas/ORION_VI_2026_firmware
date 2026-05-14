@@ -12,15 +12,21 @@
 #include "Configs/HardwareConfig.h"
 #include "Configs/NetworkConfig.h"
 
-#include "States/VacuumState.h"
+#include "States/AppState.h"
 #include "States/NetworkState.h"
+#include "States/AppErrorState.h"
 
-// Shared state
-SemaphoreHandle_t vss, ss, fms; // Vaacum State, Serial and Feedback Message Semaphores
-
-VacuumState vs = VacuumState::IDLE;
+AppState app_state = {
+    .vacuum_state = VacuumState::IDLE,
+    .vacuum_command = VacuumCommand::TO_IDLE,
+    .error_state = AppErrorState::NO_ERROR,
+    .isReady = false
+};
 
 char feedback_message[NetworkConfig::MAX_JSON_PAYLOAD] {0};
+
+// Shared state
+SemaphoreHandle_t app_state_mutex, serial_mutex, feedback_message_mutex; // App State, Serial and Feedback Message Semaphores
 
 void setup()
 {
@@ -28,8 +34,9 @@ void setup()
 
     vTaskDelay(pdTICKS_TO_MS(1000)); // wait for the serial to get configured to not miss any messages.
 
-    vss = xSemaphoreCreateMutex();
-    ss = xSemaphoreCreateMutex();
+    app_state_mutex = xSemaphoreCreateMutex();
+    serial_mutex = xSemaphoreCreateMutex();
+    feedback_message_mutex = xSemaphoreCreateMutex();
 
     Serial.println("--- VACUUM SYSTEM BOOT ---\n\n");
 
@@ -38,24 +45,24 @@ void setup()
     Serial.println("[PINS] Initialization finished.\n");
     vTaskDelay(pdTICKS_TO_MS(10));
 
-    Vacuum::init(vs, vss, ss);
+    Vacuum::init(app_state, app_state_mutex, serial_mutex);
     vTaskDelay(pdTICKS_TO_MS(10));
 
-    Network::init(feedback_message, ss, fms);
+    Network::init(feedback_message, app_state, app_state_mutex, serial_mutex, feedback_message_mutex);
     vTaskDelay(pdTICKS_TO_MS(10));
 
-    Feedback::init(feedback_message, ss, fms);
+    Feedback::init(feedback_message, app_state, serial_mutex, feedback_message_mutex, app_state_mutex);
 
-    if(xSemaphoreTake(ss, portMAX_DELAY))
+    if(xSemaphoreTake(serial_mutex, portMAX_DELAY))
     {
         Serial.println("\n\n--- VACUUM SYSTEM BOOT FINISHED ---\n\n");
-        xSemaphoreGive(ss);
+        xSemaphoreGive(serial_mutex);
     }
+
     vTaskDelete(NULL);
 }
 
 void loop()
 {
-
     Serial.println("Shouldn't get there...");
 }

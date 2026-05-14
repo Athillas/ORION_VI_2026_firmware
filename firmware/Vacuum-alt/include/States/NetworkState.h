@@ -10,7 +10,7 @@ struct NetworkState
 {
     PubSubClient client;
     uint32_t lastMqttCmdTime;
-    bool commsAlive;
+    //bool commsAlive;
 };
 
 #endif

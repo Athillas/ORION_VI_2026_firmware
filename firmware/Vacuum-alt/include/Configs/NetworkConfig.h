@@ -21,6 +21,7 @@ namespace NetworkConfig
     // Only two needed by design (_enc topic for feedback, _cmd topic for command), so these names are totally ok.
     constexpr const char* const TOPIC_ENC           = "Vacuum_enc";
     constexpr const char* const TOPIC_CMD           = "Vacuum_cmd";
+    constexpr uint8_t TOPIC_CMD_LENGTH                = 10; // Length of TOPIC_CMD
 
     // --- Network Safety ---
     constexpr uint16_t MQTT_SAFETY_TIMEOUT          = 1000;
